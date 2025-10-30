@@ -1,0 +1,181 @@
+/* Premium Dashboard Styling */
+.dashboard-container {
+  background: #0a0e27;
+  min-height: calc(100vh - 80px);
+  padding: 48px 32px;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.dashboard-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.dashboard-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #f0f4ff;
+  margin-bottom: 32px;
+  background: linear-gradient(90deg, #00D9FF, #00FF88);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.search-container {
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.search-box {
+  flex: 1;
+  max-width: 600px;
+  background: rgba(26, 31, 58, 0.6);
+  border: 1px solid rgba(0, 217, 255, 0.2);
+  padding: 12px 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.search-box:hover {
+  border-color: rgba(0, 217, 255, 0.4);
+  background: rgba(26, 31, 58, 0.8);
+}
+
+.search-box:focus-within {
+  border-color: #00D9FF;
+  box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+  background: rgba(26, 31, 58, 0.9);
+}
+
+.search-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  color: #f0f4ff;
+  font-family: inherit;
+}
+
+.search-input::placeholder {
+  color: #a0aff0;
+}
+
+.search-input:focus {
+  outline: none;
+}
+
+.repository-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+}
+
+.repository-card {
+  background: rgba(26, 31, 58, 0.4);
+  border: 1px solid rgba(0, 217, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 24px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.01, 0.25, 1);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.repository-card:hover {
+  background: rgba(26, 31, 58, 0.7);
+  border: 1px solid rgba(0, 217, 255, 0.4);
+  box-shadow: 0 12px 30px rgba(0, 217, 255, 0.2);
+  transform: translateY(-4px);
+}
+
+.repo-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: #00D9FF;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+
+.repository-card:hover .repo-name {
+  color: #00FF88;
+  text-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+}
+
+.repo-description {
+  font-size: 14px;
+  color: #a0aff0;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.repo-meta {
+  font-size: 12px;
+  color: #a0aff0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 217, 255, 0.1);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: #a0aff0;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state-text {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+@media screen and (max-width: 768px) {
+  .dashboard-container {
+    padding: 32px 16px;
+  }
+
+  .dashboard-title {
+    font-size: 28px;
+  }
+
+  .repository-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .dashboard-container {
+    padding: 24px 12px;
+  }
+
+  .dashboard-title {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .repository-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-box {
+    padding: 10px 12px;
+  }
+}
