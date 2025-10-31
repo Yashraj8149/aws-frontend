@@ -8,21 +8,26 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { setCurrentUser } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
     try {
       setLoading(true);
-      // Mock login - replace with actual API call
-      localStorage.setItem("token", "mock-token-123");
-      localStorage.setItem("userId", "user-" + Date.now());
-      setCurrentUser("user-" + Date.now());
+      const res = await axios.post("13.60.68.42:3002/login", {
+        email,
+        password,
+      });
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("userId", res.data.userId);
+      setCurrentUser(res.data.userId);
       setLoading(false);
       window.location.href = "/";
     } catch (err) {
       console.error(err);
-      alert("Login Failed!");
+      setError(err.response?.data?.message || "Login Failed!");
       setLoading(false);
     }
   };
@@ -37,6 +42,21 @@ const Login = () => {
           <h2>Welcome Back</h2>
           <p>Sign in to VersionControl</p>
 
+          {error && (
+            <div style={{
+              color: "#FF6B9D",
+              fontSize: "12px",
+              padding: "8px 12px",
+              background: "rgba(255, 107, 157, 0.1)",
+              borderRadius: "8px",
+              marginBottom: "8px",
+              width: "100%",
+              textAlign: "center"
+            }}>
+              {error}
+            </div>
+          )}
+
           <label className="label">Email</label>
           <input
             className="input"
@@ -45,6 +65,7 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
 
           <label className="label">Password</label>
@@ -55,6 +76,7 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={loading}
           />
 
           <button className="submit-btn" type="submit" disabled={loading}>
