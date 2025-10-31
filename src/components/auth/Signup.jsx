@@ -9,21 +9,27 @@ const Signup = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { setCurrentUser } = useAuth();
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    try {
+    setError("");
+    try {  
       setLoading(true);
-      // Mock signup - replace with actual API call
-      localStorage.setItem("token", "mock-token-456");
-      localStorage.setItem("userId", "user-" + Date.now());
-      setCurrentUser("user-" + Date.now());
+      const res = await axios.post("13.60.68.42:3002/signup", {
+        email,
+        password,
+        username,
+      });
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("userId", res.data.userId);
+      setCurrentUser(res.data.userId);
       setLoading(false);
       window.location.href = "/";
     } catch (err) {
       console.error(err);
-      alert("Signup Failed!");
+      setError(err.response?.data?.message || "Signup Failed!");
       setLoading(false);
     }
   };
@@ -38,6 +44,21 @@ const Signup = () => {
           <h2>Create Account</h2>
           <p>Join VersionControl today</p>
 
+          {error && (
+            <div style={{
+              color: "#FF6B9D",
+              fontSize: "12px",
+              padding: "8px 12px",
+              background: "rgba(255, 107, 157, 0.1)",
+              borderRadius: "8px",
+              marginBottom: "8px",
+              width: "100%",
+              textAlign: "center"
+            }}>
+              {error}
+            </div>
+          )}
+
           <label className="label">Email</label>
           <input
             className="input"
@@ -46,6 +67,7 @@ const Signup = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
 
           <label className="label">Username</label>
@@ -56,6 +78,7 @@ const Signup = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            disabled={loading}
           />
 
           <label className="label">Password</label>
@@ -66,6 +89,7 @@ const Signup = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={loading}
           />
 
           <button className="submit-btn" type="submit" disabled={loading}>
