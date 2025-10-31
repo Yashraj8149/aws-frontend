@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./profile.css";
 import Navbar from "../Navbar";
 import HeatMapProfile from "./HeatMap";
@@ -8,32 +9,46 @@ import { useAuth } from "../../authContext";
 const Profile = () => {
   const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState({
-    username: "YashrajThakur",
-    followers: 10,
-    following: 3
+    username: "Loading...",
+    followers: 0,
+    following: 0
   });
+  const [repositories, setRepositories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { setCurrentUser } = useAuth();
 
-  const [repositories, setRepositories] = useState([
-    {
-      name: "awesome-project",
-      description: "A stunning web application built with React and modern technologies",
-      language: "JavaScript",
-      updated: "2 days ago"
-    },
-    {
-      name: "portfolio",
-      description: "Professional portfolio website showcasing projects and skills",
-      language: "React",
-      updated: "1 week ago"
-    },
-    {
-      name: "learning-react",
-      description: "Comprehensive learning journey through React and web development",
-      language: "JavaScript",
-      updated: "3 days ago"
-    }
-  ]);
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        navigate("/auth");
+        return;
+      }
+      try {
+        setLoading(true);
+        const response = await axios.get(`13.60.68.42:3002/userProfile/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setUserDetails({
+          username: response.data.username || "User",
+          followers: response.data.followers || 0,
+          following: response.data.following || 0
+        });
+
+        // Fetch user's repositories
+        const repoResponse = await fetch(`13.60.68.42:3002/repo/user/${userId}`);
+        const repoData = await repoResponse.json();
+        setRepositories(Array.isArray(repoData.repositories) ? repoData.repositories : []);
+      } catch (err) {
+        console.error("Cannot fetch user details: ", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserDetails();
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("userId");
@@ -72,20 +87,30 @@ const Profile = () => {
         <div className="user-repo-section">
           <h2 className="repo-section-title">Repositories</h2>
 
-          <div className="repo-card-wrapper">
-            {repositories.map((repo) => (
-              <div key={repo.name} className="repo">
-                <div>
-                  <div className="repo-name">{repo.name}</div>
-                  <div className="description">{repo.description}</div>
+          {loading ? (
+            <div style={{ textAlign: "center", color: "#a0aff0", padding: "40px" }}>
+              Loading repositories...
+            </div>
+          ) : repositories.length > 0 ? (
+            <div className="repo-card-wrapper">
+              {repositories.map((repo) => (
+                <div key={repo._id || repo.name} className="repo">
+                  <div>
+                    <div className="repo-name">{repo.name}</div>
+                    <div className="description">{repo.description || "No description provided"}</div>
+                  </div>
+                  <div className="repo-meta">
+                    <span>{repo.language || "Unknown"}</span>
+                    <span>{repo.updated || "Recently"}</span>
+                  </div>
                 </div>
-                <div className="repo-meta">
-                  <span>{repo.language}</span>
-                  <span>{repo.updated}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", color: "#a0aff0", padding: "40px" }}>
+              No repositories yet
+            </div>
+          )}
 
           <div className="activity-section">
             <h2 className="activity-title">Contribution Activity</h2>
