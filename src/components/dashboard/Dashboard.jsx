@@ -3,42 +3,44 @@ import "./dashboard.css";
 import Navbar from "../Navbar";
 
 const Dashboard = () => {
-  const [repositories, setRepositories] = useState([
-    {
-      name: "awesome-project",
-      description: "A stunning web application built with React and modern technologies",
-      language: "JavaScript",
-      updated: "2 days ago"
-    },
-    {
-      name: "portfolio",
-      description: "Professional portfolio website showcasing projects and skills",
-      language: "React",
-      updated: "1 week ago"
-    },
-    {
-      name: "learning-react",
-      description: "Comprehensive learning journey through React and web development",
-      language: "JavaScript",
-      updated: "3 days ago"
-    },
-    {
-      name: "version-control-clone",
-      description: "Ultra-premium version control platform clone with stunning UI",
-      language: "React",
-      updated: "5 days ago"
-    }
-  ]);
+  const [repositories, setRepositories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState(repositories);
+  const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (searchQuery === "") {
+    const userId = localStorage.getItem("userId");
+
+    const fetchRepositories = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`13.60.68.42:3002/repo/user/${userId}`);
+        const data = await response.json();
+        const repoList = Array.isArray(data.repositories) ? data.repositories : [];
+        setRepositories(repoList);
+        setSearchResults(repoList);
+      } catch (err) {
+        console.error("Error while fetching repositories: ", err);
+        setRepositories([]);
+        setSearchResults([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (userId) {
+      fetchRepositories();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
       setSearchResults(repositories);
     } else {
+      const q = searchQuery.toLowerCase();
       const filteredRepo = repositories.filter((repo) =>
-        repo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        repo.description.toLowerCase().includes(searchQuery.toLowerCase())
+        (repo.name || "").toLowerCase().includes(q) ||
+        (repo.description || "").toLowerCase().includes(q)
       );
       setSearchResults(filteredRepo);
     }
@@ -63,15 +65,20 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {searchResults.length > 0 ? (
+          {loading ? (
+            <div className="empty-state">
+              <div className="empty-state-icon">⏳</div>
+              <div className="empty-state-text">Loading repositories...</div>
+            </div>
+          ) : searchResults.length > 0 ? (
             <div className="repository-grid">
               {searchResults.map((repo) => (
-                <div key={repo.name} className="repository-card">
+                <div key={repo._id || repo.name} className="repository-card">
                   <div className="repo-name">{repo.name}</div>
-                  <div className="repo-description">{repo.description}</div>
+                  <div className="repo-description">{repo.description || "No description"}</div>
                   <div className="repo-meta">
-                    <span>{repo.language}</span>
-                    <span>{repo.updated}</span>
+                    <span>{repo.language || "Unknown"}</span>
+                    <span>{repo.updated || "Recently"}</span>
                   </div>
                 </div>
               ))}
